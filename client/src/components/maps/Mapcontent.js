@@ -11,6 +11,7 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
+import {create} from "../functions/travel"
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import L from "leaflet";
 let DefaultIcon = L.icon({
@@ -22,13 +23,22 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const Mapcontent = () => {
   const [position, setPosition] = useState(null);
+  const [form, setForm] = useState({
+    lat: 0,
+    lng: 0,
+  });
 
   const LocationMarker = () => {
     const map = useMapEvents({
       click(e) {
-        console.log(e.latlng);
+        // console.log(e.latlng);
         map.flyTo(e.latlng, 10);
         setPosition(e.latlng);
+        setForm({
+          ...form,
+          lat: e.latlng.lat,
+          lng: e.latlng.lng,
+        });
       },
     });
 
@@ -37,6 +47,23 @@ const Mapcontent = () => {
         <Popup>You are here</Popup>
       </Marker>
     );
+  };
+
+  const handleOnChange = (e) => {
+    console.log(e.target.name, e.target.value);
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    create(form)
+    .then((res)=>{
+      console.log(res)
+    })
+    .catch((err)=>console.log(err))
   };
   return (
     <div className="row">
@@ -59,57 +86,54 @@ const Mapcontent = () => {
       </div>
       <div className="col-md-2">
         From
-        <from>
-          <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">
-              Titile
-            </label>
+        <form onSubmit={handleSubmit}>
+          {" "}
+          <div className="mb-3">
+            <label className="form-label">Title</label>
             <input
               name="name"
+              onChange={(e) => handleOnChange(e)}
               type="text"
-              class="form-control"
+              className="form-control"
               id="exampleFormControlInput1"
               placeholder="title"
             />
           </div>
-          <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">
-              Detail
-            </label>
+          <div className="mb-3">
+            <label className="form-label">Detail</label>
             <input
               name="detail"
+              onChange={(e) => handleOnChange(e)}
               type="text"
-              class="form-control"
+              className="form-control"
               id="exampleFormControlInput1"
               placeholder="title"
             />
           </div>
-          <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">
-              latitude
-            </label>
+          <div className="mb-3">
+            <label className="form-label">Latitude</label>
             <input
               name="lat"
+              value={form.lat}
               type="text"
-              class="form-control"
+              className="form-control"
               id="exampleFormControlInput1"
-              placeholder="title"
+              placeholder="latitude"
             />
           </div>
-          <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">
-              Longitude
-            </label>
+          <div className="mb-3">
+            <label className="form-label">Longitude</label>
             <input
               name="lng"
+              value={form.lng}
               type="text"
-              class="form-control"
+              className="form-control"
               id="exampleFormControlInput1"
-              placeholder="title"
+              placeholder="longitude"
             />
           </div>
-          <button></button>
-        </from>
+          <button type="submit">Submit</button>
+        </form>
       </div>
     </div>
   );
